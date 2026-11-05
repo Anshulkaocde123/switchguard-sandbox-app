@@ -19,9 +19,18 @@ def test_standard_checkout_without_discount(items, expected_total):
     ([{"price": 50.0, "quantity": 1}], "UNKNOWN", 50.0),
     ([{"price": 75.0, "quantity": 1}], "", 75.0),
     ([{"price": 30.0, "quantity": 2}], None, 60.0),
+    ([{"price": 40.0, "quantity": 1}], "VIP_FREE", 40.0),
 ])
 def test_unknown_or_empty_discount_code(items, discount_code, expected_total):
     assert calculate_cart_total(items, discount_code=discount_code) == expected_total
+
+def test_float_rounding_and_missing_quantity():
+    # Test floating-point precision with 33.333 * 3 and missing quantity key (defaults to 1)
+    items = [
+        {"price": 33.333, "quantity": 3},
+        {"price": 10.0}
+    ]
+    assert calculate_cart_total(items) == pytest.approx(109.999)
 
 @pytest.mark.parametrize("items,expected_total", [
     ([{"price": 100.0, "quantity": 1}], 0.0),

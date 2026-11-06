@@ -112,7 +112,8 @@ def process_checkout(
     )
 
     # Step 4: Tax Breakdown
-    tax_amount = calculate_tax(max(0.0, final_total), jurisdiction=jurisdiction)
+    tax_base = final_total if final_total > 0.0 else 0.0
+    tax_amount = calculate_tax(tax_base, jurisdiction=jurisdiction)
 
     # Step 5: Input Sanitization on customer_info (defense-in-depth against prompt injection)
     customer_name = "Guest"

@@ -5,7 +5,13 @@ atomic inventory holds, and reproduction tests for INC-8041, INC-8042, and INC-8
 """
 
 import pytest
-from cart_service import calculate_cart_total, calculate_bundle_proration, process_checkout
+from cart_service import (
+    calculate_cart_total,
+    calculate_bundle_proration,
+    process_checkout,
+    calculate_loyalty_points,
+    split_invoice_installments
+)
 from tax_service import calculate_tax, get_tax_rate
 from inventory_service import check_inventory, reserve_stock, release_stock, get_stock
 
@@ -156,3 +162,18 @@ def test_inc_8043_prompt_injection_sanitization():
     assert ";" not in order["customer"]
     assert "`" not in order["customer"]
     assert "$" not in order["customer"]
+
+
+def test_calculate_loyalty_points():
+    assert calculate_loyalty_points(100.0, 1.0) == 100
+    assert calculate_loyalty_points(250.5, 2.0) == 501
+    assert calculate_loyalty_points(0.0) == 0
+    assert calculate_loyalty_points(-50.0) == 0
+
+
+def test_split_invoice_installments_and_zero_division():
+    assert split_invoice_installments(120.0, 3) == 40.0
+    assert split_invoice_installments(100.0, 4) == 25.0
+    with pytest.raises(ZeroDivisionError):
+        split_invoice_installments(100.0, 0)
+

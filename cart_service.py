@@ -132,3 +132,27 @@ def process_checkout(
         "final_total": round(final_total, 2),
         "reservation_id": reservation["reservation_id"]
     }
+
+
+def calculate_loyalty_points(subtotal: float, tier_multiplier: float = 1.0) -> int:
+    """
+    Computes earned customer loyalty points based on order subtotal and tier multiplier.
+    Points are awarded as 1 point per dollar spent multiplied by membership tier.
+    """
+    if subtotal <= 0.0:
+        return 0
+    multiplier = max(1.0, tier_multiplier)
+    return int(subtotal * multiplier)
+
+
+def split_invoice_installments(total: float, installments: int) -> float:
+    """
+    Splits an invoice total into equal installment payments.
+
+    Latent Vulnerability INC-8042:
+    Omits a zero-check guard on installments parameter.
+    When installments == 0, this raises ZeroDivisionError: float division by zero.
+    """
+    # DEFECT INC-8042: Unhandled ZeroDivisionError when installments == 0
+    installment_amount = total / installments
+    return round(installment_amount, 2)
